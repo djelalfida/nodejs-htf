@@ -1,0 +1,272 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SAM Template for the i8c Hack The Future 2022 Challenge (Team <InsertTeamName>)
+
+Parameters:
+  TeamName:
+    Default: <InsertTeamName>
+    Type: String
+  TeamsWebhook:
+    Default: <paste webhook here>
+    Type: String
+  SendGridApiKey:
+    Default: <paste api key here>
+    Type: String
+
+Globals:
+  Function:
+    Timeout: 10
+
+Resources:
+  # EventBridge to SendGrid
+  SendMessageToSendGridRule:
+    Type: AWS::Events::Rule
+    Properties:
+      EventBusName:
+        Fn::ImportValue: HTF22-i8c-Stack-EventBridgeSpellBus
+      State: ENABLED
+      EventPattern:
+        source:
+          - HTF22
+        detail-type:
+          - SendToSendGrid
+      Targets:
+        - Id: SendGrid
+          Arn: 
+            Fn::GetAtt: [ SendGridApiDestination, Arn ]
+          RoleArn:
+            Fn::GetAtt: [ EventBridgeRole, Arn ]
+          InputTransformer:
+            InputPathsMap:
+              to: $.detail.to
+              from: $.detail.from
+              body: $.detail.translatedMessage
+              teamName: $.detail.teamName
+            InputTemplate: >
+              {
+                "personalizations": [
+                  {
+                    "to": [
+                      {
+                        "email": <to>
+                      }
+                    ]
+                  }
+                ],
+                "from": {
+                  "email": <from>
+                },
+                "subject": <teamName>,
+                "content": [
+                  {
+                    "type": "text/plain",
+                    "value": <body>
+                  }
+                ]
+              }
+        - Id: ScoreChecker
+          Arn:
+            Fn::ImportValue: HTF22-i8c-Stack-ScoreCheckerLambda-Arn
+
+  # EventBridge to Teams
+  SendMessageToTeamsRule:
+    Type: AWS::Events::Rule
+    Properties:
+      EventBusName:
+        Fn::ImportValue: HTF22-i8c-Stack-EventBridgeSpellBus
+      State: ENABLED
+      EventPattern:
+        source:
+          - HTF22
+        detail-type:
+          - SendToTeams
+      Targets:
+        - Id: Teams
+          Arn: 
+            Fn::GetAtt: [ TeamsApiDestination, Arn ]
+          RoleArn:
+            Fn::GetAtt: [ EventBridgeRole, Arn ]
+          InputTransformer:
+            InputPathsMap:
+              message: $.detail.translatedMessage
+              team: $.detail.teamName
+            InputTemplate: >
+              {
+                "@type": "MessageCard",
+                "@context": "http://schema.org/extensions",
+                "themeColor": "0072C6",
+                "title": <team>,
+                "text": <message>
+              }
+        - Id: ScoreChecker
+          Arn:
+            Fn::ImportValue: HTF22-i8c-Stack-ScoreCheckerLambda-Arn
+
+  # Do not touch
+  MyPigLatinTranslatorLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName:
+        Fn::Sub: HTF22-PigLatinTranslator-${TeamName}
+      CodeUri: src/fn-piglatintranslator/
+      Handler: lambda.handler
+      Runtime: nodejs16.x
+      Environment:
+        Variables:
+          EventBusName:
+            Fn::ImportValue: HTF22-i8c-Stack-EventBridgeSpellBus
+          SQSName:
+            Fn::ImportValue: HTF22-i8c-Stack-OudeMagierQueue
+          TeamName:
+            Ref: TeamName
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - sqs:SendMessage
+            Resource:
+              Fn::ImportValue: HTF22-i8c-Stack-OudeMagierQueue-Arn
+          - Effect: Allow
+            Action:
+              - events:*
+            Resource: "*"
+          - Effect: Allow
+            Action:
+              - comprehend:DetectDominantLanguage
+            Resource: "*"
+          - Effect: Allow
+            Action:
+              - translate:TranslateText
+            Resource: "*"
+      Tags:
+        Owner:
+          Ref: TeamName
+        Project: HTF22
+        Service: Lambda
+
+  # Do not touch
+  EventBridgeMyPigLatinTranslatorLambdaRule:
+    Type: AWS::Events::Rule
+    Properties:
+      EventBusName:
+        Fn::ImportValue: HTF22-i8c-Stack-EventBridgeSpellBus
+      State: ENABLED
+      EventPattern:
+        source: 
+          - HTF22
+        detail-type: 
+          - Fn::Sub: ToBeTranslatedBy-${TeamName}
+      Targets:
+        - Arn:
+            Fn::GetAtt: [ MyPigLatinTranslatorLambda, Arn ]
+          Id: MyPigLatinTranslatorLambda
+
+  # Do not touch
+  PermissionForMyPigLatinTranslatorLambdaRuleToInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Ref: MyPigLatinTranslatorLambda
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt: [ EventBridgeMyPigLatinTranslatorLambdaRule, Arn ]
+
+  # Do not touch
+  SendGridEventConnection:
+    Type: AWS::Events::Connection
+    Properties: 
+      AuthorizationType: API_KEY
+      AuthParameters: 
+        ApiKeyAuthParameters:
+          ApiKeyName: Authorization
+          ApiKeyValue:
+            Fn::Sub: "Bearer ${SendGridApiKey}"
+      Description: Credentials to connect to the Twilio API with mesurda account
+      Name: EventbridgeSendGridConnection
+
+  # Do not touch
+  SendGridApiDestination:
+    Type: AWS::Events::ApiDestination
+    Properties: 
+      ConnectionArn: 
+        Fn::GetAtt: [ SendGridEventConnection, Arn ]
+      Description: SendGrid Destination
+      HttpMethod: POST
+      InvocationEndpoint: "https://api.sendgrid.com/v3/mail/send"
+      InvocationRateLimitPerSecond: 50
+      Name: SendGridApiDestination
+
+  # Do not touch
+  PermissionForScoreCheckerLambdaInvocationSendGrid:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Fn::ImportValue: HTF22-i8c-Stack-ScoreCheckerLambda
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt: [ SendMessageToSendGridRule, Arn ]
+
+  # Do not touch
+  TeamsEventConnection:
+    Type: AWS::Events::Connection
+    Properties: 
+      AuthorizationType: API_KEY
+      AuthParameters: 
+        ApiKeyAuthParameters:
+          ApiKeyName: no_auth_needed
+          ApiKeyValue: no_auth_needed
+      Description: Credentials to connect to the Teams API
+      Name: EventbridgeTeamsConnection
+
+  # Do not touch
+  TeamsApiDestination:
+    Type: AWS::Events::ApiDestination
+    Properties: 
+      ConnectionArn: 
+        Fn::GetAtt: [ TeamsEventConnection, Arn ]
+      Description: Teams Destination
+      HttpMethod: POST
+      InvocationEndpoint:
+        Ref: TeamsWebhook
+      InvocationRateLimitPerSecond: 50
+      Name: TeamsApiDestination
+
+  # Do not touch
+  PermissionForScoreCheckerLambdaInvocationTeams:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Fn::ImportValue: HTF22-i8c-Stack-ScoreCheckerLambda
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt: [ SendMessageToTeamsRule, Arn ]
+
+  # Do not touch
+  EventBridgeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - events.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: AllowConnectionCreation
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - events:InvokeApiDestination
+                Resource:
+                  - Fn::GetAtt: [ SendGridApiDestination, Arn ]
+                  - Fn::GetAtt: [ TeamsApiDestination, Arn ]

@@ -1,0 +1,5 @@
+src/fn-messagesender/node_modules
+src/fn-piglatintranslator/node_modules
+src/fn-scorechecker/node_modules
+
+*-export.yaml
