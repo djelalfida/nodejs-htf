@@ -1,4 +1,7 @@
 # HTF22 - Tovenaars en Dreuzels
+## The Stack
+![Full Solution Architecture](/HTF-2022.drawio.png)
+
 
 ## Requirements
 ### Install AWS CLI
