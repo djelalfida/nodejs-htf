@@ -1,0 +1,17 @@
+{
+    "name": "fn-piglatintranslator",
+    "version": "1.0.0",
+    "description": "",
+    "main": "lambda.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@aws-sdk/client-comprehend": "^3.204.0",
+        "@aws-sdk/client-eventbridge": "^3.204.0",
+        "@aws-sdk/client-sqs": "^3.204.0",
+        "@aws-sdk/client-translate": "^3.204.0"
+    }
+}

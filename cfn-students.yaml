@@ -19,7 +19,7 @@ Globals:
     Timeout: 10
 
 Resources:
-  # EventBridge to SendGrid
+  # EventBridge to SendGrid Rule
   SendMessageToSendGridRule:
     Type: AWS::Events::Rule
     Properties:
@@ -69,7 +69,7 @@ Resources:
           Arn:
             Fn::ImportValue: HTF22-i8c-Stack-ScoreCheckerLambda-Arn
 
-  # EventBridge to Teams
+  # EventBridge to Teams Rule
   SendMessageToTeamsRule:
     Type: AWS::Events::Rule
     Properties:
