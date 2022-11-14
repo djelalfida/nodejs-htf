@@ -89,20 +89,3 @@ These can be a bit harder to translate, thus needing more logic in order to get 
 
 **Tip**: It might be better to start using Regex in this case instead of doing the string manipulation yourselves, but definitely feel free to follow your own path!  
 Just make sure you are able to tell what it does exactly during your presentation. :smile:
-
-## Best Practices
-### Local development (Only if Docker is installed)
-```bash
-# Install existing NPM packages
-cd src/fn-piglatintranslator
-npm install
-
-# Execute function localy (only if Docker is installed)
-sam local invoke MyPigLatinTranslatorLambda --event ./events/testEvent.json -t cfn-students.yaml
-
-# Deploy Project to AWS using bash
-bash deployStudent.sh
-
-# Deploy Project to AWS using PowerShell
-.\deployStudent.ps1
-```
