@@ -1,7 +1,13 @@
 # HTF22 - Tovenaars en Dreuzels
-## The Stack
+## The Problem
+The world is about to perish. We need help, but no human help is sufficient, so magicians had to step in. Using their magic they can save our world (hopefully), but they need to use Earthly spells otherwise it will have no effect in our world! We have already acquired the Earthly spells for you, but the magicians need them in an Ancient language called PigLatin. It is your job to translate them and make sure they arrive at the correct destination before it is too late...
+
+## The Solution
 ![Full Solution Architecture](/HTF-2022.drawio.png)
 
+The Earthly spells have been collected and get sent to you periodically using the SpellSenderLambda, find a way to route them to your TranslatorLambda using an EventBridge Rule. From there, start translating and sending!
+
+But before all that, let's get prepared for battle by following the steps underneath.
 
 ## Requirements
 ### Install AWS CLI
@@ -28,6 +34,13 @@ The installation guide can be found here:
 [NodeJS Download](https://nodejs.org/en/download/)  
 
 ### Create a SendGrid trial account
+https://sendgrid.com/
+
+Create an ApiKey and learn how to work with the API using the documentation.
+https://docs.sendgrid.com/api-reference/how-to-use-the-sendgrid-v3-api/authentication
+
+### Teams Spell Sender Channel
+Webhook: https://cronos.webhook.office.com/webhookb2/81bc4625-ee29-4195-9387-680f16db2ba6@49c3d703-3579-47bf-a888-7c913fbdced9/IncomingWebhook/cffdf2eedd7145899b39f8da5d96c614/d727bd18-2b6b-4030-97f3-25fd1a690250
 
 ## Getting started
 ### Initial Setup
