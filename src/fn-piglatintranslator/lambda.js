@@ -30,6 +30,15 @@ exports.handler = async (event) => {
 	//await sendToSQS(message);
 
 	// Step 3: Check what language the message is, translate to English if needed
+	const isEnglish = await isMessageInEnglish(message);
+
+	if (!isEnglish) {
+		// message = await translateToEnglish(message);
+		console.log('Message is not in English');
+		return;
+	}
+
+	console.log('Message is in English');
 
 	// Step 1: Translate the received message to PigLatin
 	const pigTranslatedMessage = translateToPigLatin(message);
@@ -110,8 +119,13 @@ function translateToPigLatin(message) {
 
 async function isMessageInEnglish(message) {
 	// Check if the given message is in English or not using AWS Comprehend
+	const client = new ComprehendClient({ region: AWS_REGION });
+	const command = new DetectDominantLanguageCommand({ Text: message });
+	const data = await client.send(command);
 
-	return true;
+	const isEnglish = data.Languages[0].LanguageCode === 'en';
+
+	return isEnglish;
 }
 
 async function translateToEnglish(message, sourceLanguage) {
