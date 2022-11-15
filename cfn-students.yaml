@@ -11,7 +11,7 @@ Parameters:
     Default: https://cronos.webhook.office.com/webhookb2/81bc4625-ee29-4195-9387-680f16db2ba6@49c3d703-3579-47bf-a888-7c913fbdced9/IncomingWebhook/cffdf2eedd7145899b39f8da5d96c614/d727bd18-2b6b-4030-97f3-25fd1a690250
     Type: String
   SendGridApiKey:
-    Default: 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
+    Default: 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
     Type: String
 
 Globals:
@@ -33,10 +33,10 @@ Resources:
           - SendToSendGrid
       Targets:
         - Id: SendGrid
-          Arn: 
-            Fn::GetAtt: [ SendGridApiDestination, Arn ]
+          Arn:
+            Fn::GetAtt: [SendGridApiDestination, Arn]
           RoleArn:
-            Fn::GetAtt: [ EventBridgeRole, Arn ]
+            Fn::GetAtt: [EventBridgeRole, Arn]
           InputTransformer:
             InputPathsMap:
               to: $.detail.to
@@ -83,10 +83,10 @@ Resources:
           - SendToTeams
       Targets:
         - Id: Teams
-          Arn: 
-            Fn::GetAtt: [ TeamsApiDestination, Arn ]
+          Arn:
+            Fn::GetAtt: [TeamsApiDestination, Arn]
           RoleArn:
-            Fn::GetAtt: [ EventBridgeRole, Arn ]
+            Fn::GetAtt: [EventBridgeRole, Arn]
           InputTransformer:
             InputPathsMap:
               message: $.detail.translatedMessage
@@ -122,23 +122,23 @@ Resources:
             Ref: TeamName
       Policies:
         - Statement:
-          - Effect: Allow
-            Action:
-              - sqs:SendMessage
-            Resource:
-              Fn::ImportValue: HTF22-i8c-Stack-OudeMagierQueue-Arn
-          - Effect: Allow
-            Action:
-              - events:*
-            Resource: "*"
-          - Effect: Allow
-            Action:
-              - comprehend:DetectDominantLanguage
-            Resource: "*"
-          - Effect: Allow
-            Action:
-              - translate:TranslateText
-            Resource: "*"
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource:
+                Fn::ImportValue: HTF22-i8c-Stack-OudeMagierQueue-Arn
+            - Effect: Allow
+              Action:
+                - events:*
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - comprehend:DetectDominantLanguage
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - translate:TranslateText
+              Resource: '*'
       Tags:
         Owner:
           Ref: TeamName
@@ -153,13 +153,13 @@ Resources:
         Fn::ImportValue: HTF22-i8c-Stack-EventBridgeSpellBus
       State: ENABLED
       EventPattern:
-        source: 
+        source:
           - HTF22
-        detail-type: 
+        detail-type:
           - Fn::Sub: ToBeTranslatedBy-${TeamName}
       Targets:
         - Arn:
-            Fn::GetAtt: [ MyPigLatinTranslatorLambda, Arn ]
+            Fn::GetAtt: [MyPigLatinTranslatorLambda, Arn]
           Id: MyPigLatinTranslatorLambda
 
   # Do not touch
@@ -171,34 +171,34 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn:
-        Fn::GetAtt: [ EventBridgeMyPigLatinTranslatorLambdaRule, Arn ]
+        Fn::GetAtt: [EventBridgeMyPigLatinTranslatorLambdaRule, Arn]
 
   # Do not touch
   SendGridEventConnection:
     Type: AWS::Events::Connection
-    Properties: 
+    Properties:
       AuthorizationType: API_KEY
-      AuthParameters: 
+      AuthParameters:
         ApiKeyAuthParameters:
           ApiKeyName: Authorization
           ApiKeyValue:
-            Fn::Sub: "Bearer ${SendGridApiKey}"
+            Fn::Sub: 'Bearer ${SendGridApiKey}'
       Description: Credentials to connect to the SendGrid API
-      Name: 
-        Fn::Sub: "${TeamName}-EventbridgeSendGridConnection"
+      Name:
+        Fn::Sub: '${TeamName}-EventbridgeSendGridConnection'
 
   # Do not touch
   SendGridApiDestination:
     Type: AWS::Events::ApiDestination
-    Properties: 
-      ConnectionArn: 
-        Fn::GetAtt: [ SendGridEventConnection, Arn ]
+    Properties:
+      ConnectionArn:
+        Fn::GetAtt: [SendGridEventConnection, Arn]
       Description: SendGrid Destination
       HttpMethod: POST
-      InvocationEndpoint: "https://api.sendgrid.com/v3/mail/send"
+      InvocationEndpoint: 'https://api.sendgrid.com/v3/mail/send'
       InvocationRateLimitPerSecond: 50
-      Name: 
-        Fn::Sub: "${TeamName}-SendGridApiDestination"
+      Name:
+        Fn::Sub: '${TeamName}-SendGridApiDestination'
 
   # Do not touch
   PermissionForScoreCheckerLambdaInvocationSendGrid:
@@ -209,34 +209,34 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn:
-        Fn::GetAtt: [ SendMessageToSendGridRule, Arn ]
+        Fn::GetAtt: [SendMessageToSendGridRule, Arn]
 
   # Do not touch
   TeamsEventConnection:
     Type: AWS::Events::Connection
-    Properties: 
+    Properties:
       AuthorizationType: API_KEY
-      AuthParameters: 
+      AuthParameters:
         ApiKeyAuthParameters:
           ApiKeyName: no_auth_needed
           ApiKeyValue: no_auth_needed
       Description: Credentials to connect to the Teams API
-      Name: 
-        Fn::Sub: "${TeamName}-EventbridgeTeamsConnection"
+      Name:
+        Fn::Sub: '${TeamName}-EventbridgeTeamsConnection'
 
   # Do not touch
   TeamsApiDestination:
     Type: AWS::Events::ApiDestination
-    Properties: 
-      ConnectionArn: 
-        Fn::GetAtt: [ TeamsEventConnection, Arn ]
+    Properties:
+      ConnectionArn:
+        Fn::GetAtt: [TeamsEventConnection, Arn]
       Description: Teams Destination
       HttpMethod: POST
       InvocationEndpoint:
         Ref: TeamsWebhook
       InvocationRateLimitPerSecond: 50
-      Name: 
-        Fn::Sub: "${TeamName}-TeamsApiDestination"
+      Name:
+        Fn::Sub: '${TeamName}-TeamsApiDestination'
 
   # Do not touch
   PermissionForScoreCheckerLambdaInvocationTeams:
@@ -247,7 +247,7 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn:
-        Fn::GetAtt: [ SendMessageToTeamsRule, Arn ]
+        Fn::GetAtt: [SendMessageToTeamsRule, Arn]
 
   # Do not touch
   EventBridgeRole:
@@ -262,7 +262,7 @@ Resources:
                 - events.amazonaws.com
             Action:
               - sts:AssumeRole
-      Path: "/"
+      Path: '/'
       Policies:
         - PolicyName: AllowConnectionCreation
           PolicyDocument:
@@ -272,5 +272,5 @@ Resources:
                 Action:
                   - events:InvokeApiDestination
                 Resource:
-                  - Fn::GetAtt: [ SendGridApiDestination, Arn ]
-                  - Fn::GetAtt: [ TeamsApiDestination, Arn ]
+                  - Fn::GetAtt: [SendGridApiDestination, Arn]
+                  - Fn::GetAtt: [TeamsApiDestination, Arn]

@@ -23,6 +23,13 @@ Comprehend: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/clien
 const AWS_REGION = 'eu-west-1';
 const PIG_LATIN_SUFFIX = 'ay';
 const ENGLISH_LANGUAGE_CODE = 'en';
+const EVENT_SOURCE = 'HTF22';
+
+const HANDLERS = {
+	teams: sendToTeams,
+	sqs: sendToSQS,
+	sendgrid: sendToSendGrid,
+};
 
 exports.handler = async (event) => {
 	// Log the event so you can view it in CloudWatch
@@ -46,6 +53,9 @@ exports.handler = async (event) => {
 	// Tip: Log the translated message so you can view it in CloudWatch
 	console.log(pigTranslatedMessage);
 	// Step 2: Send the message to the correct Event Rule
+
+	await HANDLERS[sendTo](pigTranslatedMessage);
+
 	const data = await sendToEvent(pigTranslatedMessage);
 };
 
@@ -53,18 +63,14 @@ exports.handler = async (event) => {
 There is no need to use the functions given below, but remember to use clean code as it will be easier to explain :)
 */
 
-async function sendToEvent(message) {
+async function sendToEvent(message, detailType = 'SendToTeams') {
 	const client = new EventBridgeClient({ region: AWS_REGION });
-	const params = {
-		translatedMessage: message,
-		teamName: process.env.TeamName, // Team name is given as an environment variable
-	};
 	const command = new PutEventsCommand({
 		Entries: [
 			{
-				Source: 'HTF22',
-				DetailType: 'SendToTeams',
-				Detail: JSON.stringify(params),
+				Source: EVENT_SOURCE,
+				DetailType: detailType,
+				Detail: JSON.stringify(message),
 				EventBusName: process.env.EventBusName,
 			},
 		],
@@ -93,10 +99,20 @@ async function sendToTeams(message) {
 		translatedMessage: message,
 		teamName: process.env.TeamName, // Team name is given as an environment variable
 	};
+
+	await sendToEvent(messageToSend, 'SendToTeams');
 }
 
 async function sendToSendGrid(message) {
 	// The format of the message can be found in cfn-students.yaml, you need 2 more attributes than in the "sendToTeams" function
+	let messageToSend = {
+		translatedMessage: message,
+		teamName: process.env.TeamName, // Team name is given as an environment variable
+		email: process.env.Email, // Email is given as an environment variable
+		teamId: process.env.TeamId, // TeamId is given as an environment variable
+	};
+
+	await sendToEvent(messageToSend, 'SendToSendGrid');
 }
 
 function translateToPigLatin(message) {
