@@ -26,9 +26,9 @@ const ENGLISH_LANGUAGE_CODE = 'en';
 const EVENT_SOURCE = 'HTF22';
 
 const HANDLERS = {
-	teams: sendToTeams,
-	sqs: sendToSQS,
-	sendgrid: sendToSendGrid,
+	Teams: sendToTeams,
+	SQS: sendToSQS,
+	SendGrid: sendToSendGrid,
 };
 
 exports.handler = async (event) => {
