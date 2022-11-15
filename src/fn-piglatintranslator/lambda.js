@@ -24,7 +24,7 @@ const AWS_REGION = 'eu-west-1';
 const ENGLISH_LANGUAGE_CODE = 'en';
 const EVENT_SOURCE = 'HTF22';
 
-const HANDLERS = {
+const handlers = {
 	Teams: sendToTeams,
 	SQS: sendToSQS,
 	SendGrid: sendToSendGrid,
@@ -34,8 +34,6 @@ exports.handler = async (event) => {
 	// Log the event so you can view it in CloudWatch
 	console.log(event);
 	let { message, sendTo } = event.detail;
-
-	//await sendToSQS(message);
 
 	// Step 3: Check what language the message is, translate to English if needed
 	const isEnglish = await isMessageInEnglish(message);
@@ -53,7 +51,7 @@ exports.handler = async (event) => {
 	console.log(pigTranslatedMessage);
 	// Step 2: Send the message to the correct Event Rule
 
-	await HANDLERS[sendTo](pigTranslatedMessage);
+	await handlers[sendTo](pigTranslatedMessage);
 
 	const data = await sendToEvent(pigTranslatedMessage);
 };
