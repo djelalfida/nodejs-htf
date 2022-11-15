@@ -106,8 +106,6 @@ async function sendToSendGrid(message) {
 	let messageToSend = {
 		translatedMessage: message,
 		teamName: process.env.TeamName, // Team name is given as an environment variable
-		email: process.env.Email, // Email is given as an environment variable
-		teamId: process.env.TeamId, // TeamId is given as an environment variable
 	};
 
 	await sendToEvent(messageToSend, 'SendToSendGrid');
@@ -119,10 +117,7 @@ function translateToPigLatin(message) {
 		.split(' ')
 		.map((word) => {
 			if (word.length < 2) return word;
-			let translatedWord =
-				word.substring(1, word.length) +
-				word.substring(1, -1) +
-				PIG_LATIN_SUFFIX;
+			let translatedWord = addPigLatinSuffix(word);
 
 			translatedWord = removePunctuation(translatedWord);
 
@@ -135,6 +130,14 @@ function translateToPigLatin(message) {
 	translated = capitalizeFirstLetter(translated);
 
 	return capitalizeAfterPunctuation(translated);
+}
+
+function addPigLatinSuffix(message) {
+	return (
+		message.substring(1, message.length) +
+		message.substring(1, -1) +
+		PIG_LATIN_SUFFIX
+	);
 }
 
 function removePunctuation(message) {
