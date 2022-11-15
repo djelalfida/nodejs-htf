@@ -20,6 +20,8 @@ Translate: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client
 Comprehend: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-comprehend/index.html
 */
 
+const AWS_REGION = 'eu-west-1';
+
 exports.handler = async (event) => {
 	// Log the event so you can view it in CloudWatch
 	console.log(event);
@@ -30,12 +32,11 @@ exports.handler = async (event) => {
 	// Step 3: Check what language the message is, translate to English if needed
 
 	// Step 1: Translate the received message to PigLatin
-	const translatedMessage = translateToPigLatin(message);
+	const pigTranslatedMessage = translateToPigLatin(message);
 	// Tip: Log the translated message so you can view it in CloudWatch
 
 	// Step 2: Send the message to the correct Event Rule
-	const data = await sendToEvent(translatedMessage);
-	console.log(data);
+	const data = await sendToEvent(pigTranslatedMessage);
 };
 
 /*
@@ -43,7 +44,7 @@ There is no need to use the functions given below, but remember to use clean cod
 */
 
 async function sendToEvent(message) {
-	const client = new EventBridgeClient({ region: 'eu-west-1' });
+	const client = new EventBridgeClient({ region: AWS_REGION });
 	const params = {
 		translatedMessage: message,
 		teamName: process.env.TeamName, // Team name is given as an environment variable
@@ -69,7 +70,7 @@ async function sendToSQS(message) {
 		teamName: process.env.TeamName, // Team name is given as an environment variable
 	};
 
-	const client = new SQSClient({ region: 'eu-west-1' });
+	const client = new SQSClient({ region: AWS_REGION });
 
 	const command = new SendMessageCommand(messageToSend);
 
