@@ -36,6 +36,7 @@ exports.handler = async (event) => {
 		console.log('Message is not in English');
 		const sourceLanguage = await getSourceLanugage(message);
 		message = await translateToEnglish(message, sourceLanguage);
+		console.log('Translated message: ' + message);
 	}
 
 	// Step 1: Translate the received message to PigLatin
