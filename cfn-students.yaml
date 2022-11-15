@@ -183,7 +183,7 @@ Resources:
           ApiKeyName: Authorization
           ApiKeyValue:
             Fn::Sub: "Bearer ${SendGridApiKey}"
-      Description: Credentials to connect to the Twilio API with mesurda account
+      Description: Credentials to connect to the SendGrid API
       Name: EventbridgeSendGridConnection
 
   # Do not touch
