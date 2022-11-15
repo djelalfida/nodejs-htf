@@ -99,6 +99,11 @@ function translateToPigLatin(message) {
 		.join(' ')
 		.toLowerCase();
 
+	translated.replace(
+		translated.substring(0, 1),
+		translated.substring(0, 1).toUpperCase()
+	);
+
 	return translated;
 }
 
