@@ -152,7 +152,6 @@ function capitalizeAfterPunctuation(message) {
 			punctuations.includes(currentWord[currentWord.length - 1]) &&
 			i < splittedMessage.length - 1
 		) {
-			console.log('current word: ' + currentWord);
 			splittedMessage[i + 1] = capitalizeFirstLetter(splittedMessage[i + 1]);
 		}
 	}
