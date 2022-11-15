@@ -121,18 +121,16 @@ function translateToPigLatin(message) {
 		.split(' ')
 		.map((word) => {
 			if (word.length < 2) return word;
-			return (
+			const newWord =
 				word.substring(1, word.length) +
 				word.substring(1, -1) +
-				PIG_LATIN_SUFFIX
-			);
+				PIG_LATIN_SUFFIX;
+			return newWord + newWord.getPunctuation().join('');
 		})
 		.join(' ')
 		.toLowerCase();
 
 	translated = capitalizeFirstLetter(translated);
-	translated = translated.replace(getPunctuation(translated), '');
-	translated = translated + getPunctuation(translated).join('');
 
 	return translated;
 }
