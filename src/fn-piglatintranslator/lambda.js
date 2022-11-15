@@ -23,6 +23,7 @@ Comprehend: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/clien
 const AWS_REGION = 'eu-west-1';
 const ENGLISH_LANGUAGE_CODE = 'en';
 const EVENT_SOURCE = 'HTF22';
+const PIG_LATIN_SUFFIX = 'ay';
 
 const handlers = {
 	Teams: sendToTeams,
@@ -111,8 +112,6 @@ async function sendToSendGrid(message) {
 
 	await sendToEvent(messageToSend, 'SendToSendGrid');
 }
-
-const PIG_LATIN_SUFFIX = 'ay';
 
 function translateToPigLatin(message) {
 	// Translate
