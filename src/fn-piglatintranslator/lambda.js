@@ -46,7 +46,7 @@ async function sendToSQS(message) {
 		teamName: process.env.TeamName, // Team name is given as an environment variable
 	};
 
-	const client = new SQSClient({ region: 'eu-west1' });
+	const client = new SQSClient({ region: 'eu-west-1' });
 
 	const command = new SendMessageCommand(messageToSend);
 
