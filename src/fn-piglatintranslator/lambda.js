@@ -34,7 +34,8 @@ exports.handler = async (event) => {
 
 	if (!isEnglish) {
 		console.log('Message is not in English');
-		message = translateToEnglish(message, getSourceLanugage(message));
+		const sourceLanguage = await getSourceLanugage(message);
+		message = await translateToEnglish(message, sourceLanguage);
 	}
 
 	// Step 1: Translate the received message to PigLatin
@@ -120,7 +121,7 @@ async function isMessageInEnglish(message) {
 	const command = new DetectDominantLanguageCommand({ Text: message });
 	const data = await client.send(command);
 
-	const isEnglish = getSourceLanugage(message) === 'en';
+	const isEnglish = (await getSourceLanugage(message)) === 'en';
 
 	return isEnglish;
 }
