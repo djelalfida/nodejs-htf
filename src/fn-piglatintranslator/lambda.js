@@ -34,7 +34,11 @@ exports.handler = async (event) => {
 
 	// Step 2: Send the message to the correct Event Rule
 	const client = new EventBridgeClient({ region: 'eu-west-1' });
-	const command = new PutEventsCommand({ message });
+	const params = {
+		translatedMessage: message,
+		teamName: process.env.TeamName, // Team name is given as an environment variable
+	};
+	const command = new PutEventsCommand({ params });
 	const data = await client.send(command);
 	console.log(data);
 };
