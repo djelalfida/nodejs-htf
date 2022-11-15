@@ -25,7 +25,7 @@ exports.handler = async (event) => {
 	console.log(event);
 	const { message, sendTo } = event.detail;
 
-	await sendToSQS(message);
+	//await sendToSQS(message);
 
 	// Step 3: Check what language the message is, translate to English if needed
 
@@ -33,6 +33,10 @@ exports.handler = async (event) => {
 	// Tip: Log the translated message so you can view it in CloudWatch
 
 	// Step 2: Send the message to the correct Event Rule
+	const client = new EventBridgeClient({ region: 'eu-west-1' });
+	const command = new PutEventsCommand({ message });
+	const data = await client.send(command);
+	console.log(data);
 };
 
 /*
