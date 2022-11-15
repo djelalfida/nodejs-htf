@@ -38,7 +38,16 @@ exports.handler = async (event) => {
 		translatedMessage: message,
 		teamName: process.env.TeamName, // Team name is given as an environment variable
 	};
-	const command = new PutEventsCommand({ params });
+	const command = new PutEventsCommand({
+		Entries: [
+			{
+				Source: 'fn-piglatintranslator',
+				DetailType: 'TranslatedMessage',
+				Detail: JSON.stringify(params),
+				EventBusName: 'default',
+			},
+		],
+	});
 	const data = await client.send(command);
 	console.log(data);
 };
