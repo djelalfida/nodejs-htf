@@ -21,6 +21,8 @@ Comprehend: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/clien
 */
 
 const AWS_REGION = 'eu-west-1';
+const PIG_LATIN_SUFFIX = 'ay';
+const ENGLISH_LANGUAGE_CODE = 'en';
 
 exports.handler = async (event) => {
 	// Log the event so you can view it in CloudWatch
@@ -99,12 +101,15 @@ async function sendToSendGrid(message) {
 
 function translateToPigLatin(message) {
 	// Translate
-	const suffix = 'ay';
 	const translated = message
 		.split(' ')
 		.map((word) => {
 			if (word.length < 2) return word;
-			return word.substring(1, word.length) + word.substring(1, -1) + suffix;
+			return (
+				word.substring(1, word.length) +
+				word.substring(1, -1) +
+				PIG_LATIN_SUFFIX
+			);
 		})
 		.join(' ')
 		.toLowerCase();
@@ -123,7 +128,8 @@ async function isMessageInEnglish(message) {
 	const command = new DetectDominantLanguageCommand({ Text: message });
 	const data = await client.send(command);
 
-	const isEnglish = (await getSourceLanugage(message)) === 'en';
+	const isEnglish =
+		(await getSourceLanugage(message)) === ENGLISH_LANGUAGE_CODE;
 
 	return isEnglish;
 }
@@ -145,7 +151,7 @@ async function translateToEnglish(message, sourceLanguage) {
 	const command = new TranslateTextCommand({
 		Text: message,
 		SourceLanguageCode: sourceLanguage,
-		TargetLanguageCode: 'en',
+		TargetLanguageCode: ENGLISH_LANGUAGE_CODE,
 	});
 	const data = await client.send(command);
 
