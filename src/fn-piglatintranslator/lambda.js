@@ -103,7 +103,7 @@ function translateToPigLatin(message) {
 	const translated = message
 		.split(' ')
 		.map((word) => {
-			return `${[...word].reverse().join('')}${suffix}`;
+			return word.substring(1, word.length) + word.substring(1, -1) + suffix;
 		})
 		.join(' ')
 		.toLowerCase();
