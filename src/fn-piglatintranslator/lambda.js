@@ -53,8 +53,6 @@ exports.handler = async (event) => {
 	// Step 2: Send the message to the correct Event Rule
 
 	await handlers[sendTo](pigTranslatedMessage);
-
-	const data = await sendToEvent(pigTranslatedMessage);
 };
 
 /*
