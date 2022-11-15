@@ -1,5 +1,5 @@
 #!/bin/bash
-STACK_NAME=HTF22-<TeamNameHere>
+STACK_NAME=HTF22-204NoContent
 MY_REGION=eu-west-1
 MY_DEV_BUCKET=htf-22-i8c-bucket
 
