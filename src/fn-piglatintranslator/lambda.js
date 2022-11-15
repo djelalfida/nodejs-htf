@@ -21,7 +21,6 @@ Comprehend: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/clien
 */
 
 const AWS_REGION = 'eu-west-1';
-const PIG_LATIN_SUFFIX = 'ay';
 const ENGLISH_LANGUAGE_CODE = 'en';
 const EVENT_SOURCE = 'HTF22';
 
@@ -115,27 +114,52 @@ async function sendToSendGrid(message) {
 	await sendToEvent(messageToSend, 'SendToSendGrid');
 }
 
+const PIG_LATIN_SUFFIX = 'ay';
+
 function translateToPigLatin(message) {
 	// Translate
 	let translated = message
 		.split(' ')
 		.map((word) => {
 			if (word.length < 2) return word;
-			const newWord =
+			let translatedWord =
 				word.substring(1, word.length) +
 				word.substring(1, -1) +
 				PIG_LATIN_SUFFIX;
-			return (
-				newWord.replace(getPunctuation(newWord), '') +
-				getPunctuation(newWord).join('')
-			);
+
+			translatedWord = removePunctuation(translatedWord);
+
+			return translatedWord + getPunctuation(word).join('');
 		})
 		.join(' ')
 		.toLowerCase();
 
+	// capitalize after punctuation
 	translated = capitalizeFirstLetter(translated);
 
-	return translated;
+	return capitalizeAfterPunctuation(translated);
+}
+
+function removePunctuation(message) {
+	return message.replace(/[^a-zA-Z0-9]/g, '');
+}
+
+function capitalizeAfterPunctuation(message) {
+	const punctuations = ['!', '.', '?'];
+	let splittedMessage = message.split(' ');
+	for (let i = 0; i < splittedMessage.length; i++) {
+		let currentWord = splittedMessage[i];
+
+		if (
+			punctuations.includes(currentWord[currentWord.length - 1]) &&
+			i < splittedMessage.length - 1
+		) {
+			console.log('current word: ' + currentWord);
+			splittedMessage[i + 1] = capitalizeFirstLetter(splittedMessage[i + 1]);
+		}
+	}
+
+	return splittedMessage.join(' ');
 }
 
 function capitalizeFirstLetter(string) {
