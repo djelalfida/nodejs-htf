@@ -96,7 +96,8 @@ function translateToPigLatin(message) {
 		.map((word) => {
 			return `${[...word].reverse().join('')}${suffix}`;
 		})
-		.join(' ');
+		.join(' ')
+		.toLowerCase();
 
 	return translated;
 }
