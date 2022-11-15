@@ -30,9 +30,19 @@ exports.handler = async (event) => {
 	// Step 3: Check what language the message is, translate to English if needed
 
 	// Step 1: Translate the received message to PigLatin
+	const translatedMessage = translateToPigLatin(message);
 	// Tip: Log the translated message so you can view it in CloudWatch
 
 	// Step 2: Send the message to the correct Event Rule
+	const data = await sendToEvent(translatedMessage);
+	console.log(data);
+};
+
+/*
+There is no need to use the functions given below, but remember to use clean code as it will be easier to explain :)
+*/
+
+async function sendToEvent(message) {
 	const client = new EventBridgeClient({ region: 'eu-west-1' });
 	const params = {
 		translatedMessage: message,
@@ -49,12 +59,8 @@ exports.handler = async (event) => {
 		],
 	});
 	const data = await client.send(command);
-	console.log(data);
-};
-
-/*
-There is no need to use the functions given below, but remember to use clean code as it will be easier to explain :)
-*/
+	return data;
+}
 
 async function sendToSQS(message) {
 	// The message that is understood by the SQS
@@ -84,8 +90,15 @@ async function sendToSendGrid(message) {
 
 function translateToPigLatin(message) {
 	// Translate
+	const suffix = 'ay';
+	const translated = message
+		.split(' ')
+		.map((word) => {
+			return `${[...word].reverse().join('')}${suffix}`;
+		})
+		.join(' ');
 
-	return message;
+	return translated;
 }
 
 async function isMessageInEnglish(message) {
