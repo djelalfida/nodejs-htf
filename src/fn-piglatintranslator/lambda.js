@@ -117,7 +117,7 @@ async function sendToSendGrid(message) {
 
 function translateToPigLatin(message) {
 	// Translate
-	const translated = message
+	let translated = message
 		.split(' ')
 		.map((word) => {
 			if (word.length < 2) return word;
@@ -130,12 +130,20 @@ function translateToPigLatin(message) {
 		.join(' ')
 		.toLowerCase();
 
-	translated.replace(
-		translated.substring(0, 1),
-		translated.substring(0, 1).toUpperCase()
-	);
+	translated = capitalizeFirstLetter(translated);
+	translated = translated.replace(getPunctuation(translated), '');
+	translated = translated + getPunctuation(translated).join('');
 
 	return translated;
+}
+
+function capitalizeFirstLetter(string) {
+	return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function getPunctuation(message) {
+	const punctuation = message.match(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g);
+	return punctuation;
 }
 
 async function isMessageInEnglish(message) {
