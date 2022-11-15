@@ -1,7 +1,16 @@
-const { EventBridgeClient, PutEventsCommand } = require('@aws-sdk/client-eventbridge');
+const {
+	EventBridgeClient,
+	PutEventsCommand,
+} = require('@aws-sdk/client-eventbridge');
 const { SQSClient, SendMessageCommand } = require('@aws-sdk/client-sqs');
-const { TranslateClient, TranslateTextCommand } = require('@aws-sdk/client-translate');
-const { ComprehendClient, DetectDominantLanguageCommand } = require('@aws-sdk/client-comprehend');
+const {
+	TranslateClient,
+	TranslateTextCommand,
+} = require('@aws-sdk/client-translate');
+const {
+	ComprehendClient,
+	DetectDominantLanguageCommand,
+} = require('@aws-sdk/client-comprehend');
 
 /*
 Documentation for AWS calls
@@ -12,16 +21,18 @@ Comprehend: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/clien
 */
 
 exports.handler = async (event) => {
-    // Log the event so you can view it in CloudWatch
-    console.log(event);
+	// Log the event so you can view it in CloudWatch
+	console.log(event);
+	const { message, sendTo } = event.detail;
 
-    // Step 3: Check what language the message is, translate to English if needed
+	await sendToSQS(message);
 
-    // Step 1: Translate the received message to PigLatin
-    // Tip: Log the translated message so you can view it in CloudWatch
+	// Step 3: Check what language the message is, translate to English if needed
 
-    // Step 2: Send the message to the correct Event Rule
+	// Step 1: Translate the received message to PigLatin
+	// Tip: Log the translated message so you can view it in CloudWatch
 
+	// Step 2: Send the message to the correct Event Rule
 };
 
 /*
@@ -29,42 +40,43 @@ There is no need to use the functions given below, but remember to use clean cod
 */
 
 async function sendToSQS(message) {
-    // The message that is understood by the SQS
-    let messageToSend = {
-        translatedMessage : message,
-        teamName: process.env.TeamName // Team name is given as an environment variable
-    };
+	// The message that is understood by the SQS
+	let messageToSend = {
+		translatedMessage: message,
+		teamName: process.env.TeamName, // Team name is given as an environment variable
+	};
 
+	const client = new SQSClient({ region: 'eu-west1' });
+
+	const data = await client.send(messageToSend);
 }
 
 async function sendToTeams(message) {
-    // The message that is understood by the EventBridge rule
-    let messageToSend = {
-        translatedMessage: message,
-        teamName: process.env.TeamName // Team name is given as an environment variable
-    };
-
+	// The message that is understood by the EventBridge rule
+	let messageToSend = {
+		translatedMessage: message,
+		teamName: process.env.TeamName, // Team name is given as an environment variable
+	};
 }
 
 async function sendToSendGrid(message) {
-    // The format of the message can be found in cfn-students.yaml, you need 2 more attributes than in the "sendToTeams" function
-
+	// The format of the message can be found in cfn-students.yaml, you need 2 more attributes than in the "sendToTeams" function
 }
 
 function translateToPigLatin(message) {
-    // Translate
+	// Translate
 
-    return message;
+	return message;
 }
 
 async function isMessageInEnglish(message) {
-    // Check if the given message is in English or not using AWS Comprehend
+	// Check if the given message is in English or not using AWS Comprehend
 
-    return true;
+	return true;
 }
 
 async function translateToEnglish(message, sourceLanguage) {
-    // Translate the message to English using AWS Translate
+	// Translate the message to English using AWS Translate
 
-    return message;
+	return message;
 }
