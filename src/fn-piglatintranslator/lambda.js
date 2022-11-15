@@ -125,7 +125,10 @@ function translateToPigLatin(message) {
 				word.substring(1, word.length) +
 				word.substring(1, -1) +
 				PIG_LATIN_SUFFIX;
-			return newWord + getPunctuation(newWord).join('');
+			return (
+				newWord.replace(getPunctuation(newWord), '') +
+				getPunctuation(newWord).join('')
+			);
 		})
 		.join(' ')
 		.toLowerCase();
@@ -141,7 +144,7 @@ function capitalizeFirstLetter(string) {
 
 function getPunctuation(message) {
 	const punctuation = message.match(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g);
-	return punctuation;
+	return punctuation ?? [''];
 }
 
 async function isMessageInEnglish(message) {
