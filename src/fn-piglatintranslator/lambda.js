@@ -25,7 +25,7 @@ const AWS_REGION = 'eu-west-1';
 exports.handler = async (event) => {
 	// Log the event so you can view it in CloudWatch
 	console.log(event);
-	const { message, sendTo } = event.detail;
+	let { message, sendTo } = event.detail;
 
 	//await sendToSQS(message);
 
@@ -33,16 +33,14 @@ exports.handler = async (event) => {
 	const isEnglish = await isMessageInEnglish(message);
 
 	if (!isEnglish) {
-		// message = await translateToEnglish(message);
 		console.log('Message is not in English');
-	} else {
-		console.log('Message is in English');
+		message = translateToEnglish(message, getSourceLanugage(message));
 	}
 
 	// Step 1: Translate the received message to PigLatin
 	const pigTranslatedMessage = translateToPigLatin(message);
 	// Tip: Log the translated message so you can view it in CloudWatch
-
+	console.log(pigTranslatedMessage);
 	// Step 2: Send the message to the correct Event Rule
 	const data = await sendToEvent(pigTranslatedMessage);
 };
@@ -122,13 +120,31 @@ async function isMessageInEnglish(message) {
 	const command = new DetectDominantLanguageCommand({ Text: message });
 	const data = await client.send(command);
 
-	const isEnglish = data.Languages[0].LanguageCode === 'en';
+	const isEnglish = getSourceLanugage(message) === 'en';
 
 	return isEnglish;
 }
 
+async function getSourceLanugage(message) {
+	// Check if the given message is in English or not using AWS Comprehend
+	const client = new ComprehendClient({ region: AWS_REGION });
+	const command = new DetectDominantLanguageCommand({ Text: message });
+	const data = await client.send(command);
+
+	const language = data.Languages[0].LanguageCode;
+
+	return language;
+}
+
 async function translateToEnglish(message, sourceLanguage) {
 	// Translate the message to English using AWS Translate
+	const client = new TranslateClient({ region: AWS_REGION });
+	const command = new TranslateTextCommand({
+		Text: message,
+		SourceLanguageCode: sourceLanguage,
+		TargetLanguageCode: 'en',
+	});
+	const data = await client.send(command);
 
-	return message;
+	return data.TranslatedText;
 }
