@@ -125,7 +125,7 @@ function translateToPigLatin(message) {
 				word.substring(1, word.length) +
 				word.substring(1, -1) +
 				PIG_LATIN_SUFFIX;
-			return newWord + newWord.getPunctuation().join('');
+			return newWord + getPunctuation(newWord).join('');
 		})
 		.join(' ')
 		.toLowerCase();
