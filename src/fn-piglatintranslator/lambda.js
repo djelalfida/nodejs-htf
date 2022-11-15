@@ -48,7 +48,9 @@ async function sendToSQS(message) {
 
 	const client = new SQSClient({ region: 'eu-west1' });
 
-	const data = await client.send(messageToSend);
+	const command = new SendMessageCommand(messageToSend);
+
+	const data = await client.send(command);
 }
 
 async function sendToTeams(message) {
