@@ -41,10 +41,10 @@ exports.handler = async (event) => {
 	const command = new PutEventsCommand({
 		Entries: [
 			{
-				Source: 'fn-piglatintranslator',
-				DetailType: 'TranslatedMessage',
+				Source: 'HTF22',
+				DetailType: 'SendToTeams',
 				Detail: JSON.stringify(params),
-				EventBusName: 'default',
+				EventBusName: process.env.EventBusName,
 			},
 		],
 	});
