@@ -40,7 +40,7 @@ Create an ApiKey and learn how to work with the API using the documentation.
 https://docs.sendgrid.com/api-reference/how-to-use-the-sendgrid-v3-api/authentication
 
 ### Teams Spell Sender Channel
-Webhook: https://cronos.webhook.office.com/webhookb2/81bc4625-ee29-4195-9387-680f16db2ba6@49c3d703-3579-47bf-a888-7c913fbdced9/IncomingWebhook/cffdf2eedd7145899b39f8da5d96c614/d727bd18-2b6b-4030-97f3-25fd1a690250
+Webhook: Teams
 
 ## Getting started
 ### Initial Setup
